@@ -199,7 +199,7 @@ def main():
         
         for i, beam in enumerate(beams):
             for j, bomb in enumerate(bombs):
-                if beam is not None and bomb is not None:
+                if beam and bomb is not None:
                     if beam.rct.colliderect(bomb.rct):
                         # ビームと爆弾の衝突判定
                         beams[i] = None
