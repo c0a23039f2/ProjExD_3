@@ -107,7 +107,29 @@ class Beam:
         """
         if check_bound(self.rct) == (True, True):
             self.rct.move_ip(self.vx, self.vy)
-            screen.blit(self.img, self.rct)    
+            screen.blit(self.img, self.rct)   
+ 
+class Score:
+    """
+    スコアクラス
+    """
+    def __init__(self, screen:pg.Surface):
+        self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.clor = (0, 0, 255)
+        self.score = 0
+        self.img = self.fonto.render(f"スコア：{self.score}", True, self.clor)
+        screen_rect = screen.get_rect()
+        pos = (100, screen_rect.bottom - 50)
+        self.rect = self.img.get_rect(bottomleft=pos)
+
+    def add_score(self, points: int):
+        self.score += points
+        
+    def update(self, screen: pg.Surface):
+        self.img = self.fonto.render(f"スコア：{self.score}", True, self.clor)
+        screen.blit(self.img, self.rect)
+
+
 
 
 class Bomb:
@@ -146,13 +168,8 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
     bg_img = pg.image.load("fig/pg_bg.jpg")
     bird = Bird((300, 200))
-    # bomb = Bomb((255, 0, 0), 10)
-    # bombs = []  # 爆弾用の空のリスト
-    # for _ in range(NUM_OF_BOMBS):  # NUM_OF_BOMBS個の爆弾を追加
-    #     bomb = Bomb((255, 0, 0), 10)
-    #     bombs.append(bomb)
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
-
+    score = Score(screen)
     beam = None  # ゲーム初期化時にはビームは存在しない
     clock = pg.time.Clock()
     tmr = 0
@@ -160,6 +177,7 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
+            
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 # スペースキー押下でBeamクラスのインスタンス生成
                 beam = Beam(bird)            
@@ -183,6 +201,9 @@ def main():
                     # ビームと爆弾の衝突判定
                     beam, bombs[b] = None, None
                     bird.change_img(6, screen)
+                    score.add_score(1)
+
+
         bombs = [bomb for bomb in bombs if bomb is not None]
 
         key_lst = pg.key.get_pressed()
@@ -191,6 +212,7 @@ def main():
             beam.update(screen)   
         for bomb in bombs:
             bomb.update(screen)
+        score.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
